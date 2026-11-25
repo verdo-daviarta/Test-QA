@@ -1,0 +1,39 @@
+name: Playwright
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run install:browsers -- --with-deps
+      - name: Run public login test
+        if: github.actor == 'dependabot[bot]' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository)
+        run: npm test -- --grep 'TC 1\.1'
+      - name: Run full suite
+        if: github.actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        run: npm test
+        env:
+          CURA_USERNAME: ${{ secrets.CURA_USERNAME }}
+          CURA_PASSWORD: ${{ secrets.CURA_PASSWORD }}
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-pdf
+          path: output/pdf/cura-test-report.pdf

@@ -1,0 +1,8 @@
+/node_modules/
+/playwright-report/
+/test-results/
+/output/pdf/
+.env
+.env.*
+!/.env.example
+/playwright/.auth/
