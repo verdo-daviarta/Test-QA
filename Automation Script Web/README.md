@@ -1,19 +1,17 @@
-# CURA Demo Playwright Tests
+# Demo CURA Playwright
 
-Playwright and TypeScript test suite for the [CURA Demo](https://katalon-demo-cura.herokuapp.com/). The four cases in the [test scenario spreadsheet](https://docs.google.com/spreadsheets/d/1X_pHOqkMzgp2x87sdaltqLglVWTYgTXr6azGM9VXYYQ/edit) run in Chromium, Firefox, and WebKit.
+Suite Playwright dan TypeScript untuk [Demo CURA](https://katalon-demo-cura.herokuapp.com/). Empat kasus dari [spreadsheet skenario](https://docs.google.com/spreadsheets/d/17e1KXwIWOEA0sY1Tta-ulTWmZ4Qmf8bLAnweKAN3QE4/edit) dijalankan di Chromium, Firefox, dan WebKit.
 
-| ID | Test case | Expected result |
+| ID | Kasus | Hasil yang diperiksa |
 | --- | --- | --- |
-| 1.1 | Log in with invalid credentials | The login page stays open and displays an error |
-| 1.2 | Log in with valid credentials | The Make Appointment page opens |
-| 2.1 | Submit an appointment with the required date missing | The browser shows a required-date message and keeps the form open |
-| 2.2 | Make an appointment successfully | The confirmation page displays all submitted details |
+| 1.1 | Login dengan kredensial tidak valid | Halaman login tetap terbuka dan pesan gagal tampil |
+| 1.2 | Login dengan kredensial valid | Halaman Make Appointment terbuka |
+| 2.1 | Appointment tanpa tanggal | Browser menandai tanggal sebagai wajib dan tetap di form |
+| 2.2 | Appointment dengan form lengkap | Halaman konfirmasi menampilkan data yang dikirim |
 
-## Run the tests
+## Menjalankan pengujian 
 
-Use Node.js 24 and a connection to the demo site. Run the commands from the `ecommerce-playwright` directory.
-
-If `.env` is missing, copy `.env.example` to `.env` and set `CURA_USERNAME` and `CURA_PASSWORD` for the test account. Git ignores `.env`. Shell environment variables take precedence over values in `.env`.
+Gunakan Node.js 24 dan koneksi ke situs demo. Jalankan dari folder `ecommerce-playwright`.
 
 ```powershell
 npm.cmd ci
@@ -23,26 +21,19 @@ npm.cmd test
 npm.cmd run report
 ```
 
-Use `npm` on macOS or Linux. To run a single case in Chromium, use `npm.cmd test -- --project=chromium --grep 'TC 2.1'`. The HTML report is saved in `playwright-report/`. Trace, screenshot, video, and failure snapshot capture are disabled to limit exposure of credentials.
+Gunakan `npm` pada macOS atau Linux. Jalankan satu kasus di Chromium dengan `npm.cmd test -- --project=chromium --grep 'TC 2.1'`. Laporan HTML tersimpan di `playwright-report/` dan artefak kegagalan di `test-results/`. Workflow GitHub Actions menjalankan pemeriksaan tipe dan pengujian, lalu mengunggah laporan HTML.
 
-Run `npm.cmd test -- --ui` from `ecommerce-playwright` to open Playwright UI Mode. If UI Mode was already open when `.env` changed, close it and start the command again so it loads the latest settings.
+Playwright memakai URL Demo CURA secara default. Variabel environment `BASE_URL` dapat menunjuk ke instance CURA lain. Data uji mencakup akun demo publik, kredensial invalid sintetis, dan detail appointment sintetis.
 
-After each `npm test` run, the PDF reporter saves the latest test statuses and durations to `output/pdf/cura-test-report.pdf`, including any failures. The reporter uses the Chromium installation from `npm run install:browsers` to generate the PDF, even for Firefox-only or WebKit-only runs.
+## Struktur
 
-Playwright uses the CURA Demo URL by default. Set `BASE_URL` to target another CURA instance. The invalid credentials and appointment details in `testData.ts` are synthetic.
-
-For GitHub Actions, add the repository secrets `CURA_USERNAME` and `CURA_PASSWORD`. The workflow runs the full suite for pushes and same-repository pull requests, then uploads the HTML and PDF reports. Fork pull requests and Dependabot runs execute only TC 1.1, which requires no test account.
-
-## Project structure
-
-| Path | Contents |
+| Lokasi | Isi |
 | --- | --- |
-| `playwright.config.ts` | Entry point detected by Playwright CLI and UI Mode |
-| `config/playwright.config.ts` | Browser projects, parallel execution, and reporters |
-| `src/pages/` | Page objects for Home, Login, and Appointment |
-| `src/tests/` | Login and Make Appointment scenarios |
-| `src/fixtures/testFixtures.ts` | Environment credentials and an isolated login session for each appointment test |
-| `src/utils/testData.ts` | Synthetic invalid login and appointment data |
-| `.github/workflows/` | GitHub Actions workflow |
-| `.vscode/` | Playwright extension recommendation |
+| `config/playwright.config.ts` | Proyek browser, eksekusi paralel, dan laporan |
+| `src/pages/` | Page Object untuk Home, Login, dan Appointment |
+| `src/tests/` | Skenario Login dan Make Appointment |
+| `src/fixtures/testFixtures.ts` | Setup login dan sesi terautentikasi terpisah untuk tiap tes appointment |
+| `src/utils/testData.ts` | Akun demo dan input appointment |
+| `.github/workflows/` | Workflow CI GitHub Actions |
+| `.vscode/` | Rekomendasi ekstensi Playwright |
 
